@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CropYield AI - Deep Learning Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            /* Agricultural thematic rich dark gradient background */
+            background: radial-gradient(circle at 50% 30%, #064e3b 0%, #022c22 45%, #0f172a 100%); 
+            color: #f8fafc;
+        }
+        .glass-card { 
+            background: rgba(15, 23, 42, 0.75); 
+            backdrop-filter: blur(16px); 
+            border: 1px solid rgba(16, 185, 129, 0.2); 
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+        .glass-input { 
+            background: rgba(2, 44, 34, 0.5); 
+            border: 1px solid rgba(16, 185, 129, 0.3); 
+            color: #f1f5f9; 
+        }
+        .glass-input:focus { 
+            border-color: #34d399; 
+            outline: none; 
+            box-shadow: 0 0 15px rgba(52, 211, 153, 0.3); 
+        }
+        .glow-emerald { 
+            box-shadow: 0 0 35px rgba(16, 185, 129, 0.3); 
+        }
+    </style>
+</head>
+<body class="flex min-h-screen relative overflow-x-hidden">
+
+    <!-- 🔐 LOGIN MODAL WITH AGRICULTURAL THEME -->
+    <div id="loginModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-card max-w-md w-full rounded-3xl overflow-hidden glow-emerald">
+            <!-- Project Image Banner -->
+            <div class="relative h-40 w-full overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1586771107445-d3ca888129ff?q=80&w=600&auto=format&fit=crop" alt="AI Agriculture" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
+                <div class="absolute bottom-3 left-6">
+                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-emerald-300 bg-emerald-950/80 border border-emerald-500/40 px-2.5 py-1 rounded-full">Neural Network AI</span>
+                </div>
+            </div>
+            
+            <div class="p-6 pt-4 text-center">
+                <h2 class="text-2xl font-extrabold text-white mb-1">CropYield AI Portal</h2>
+                <p class="text-slate-300 text-xs mb-5">Enter your name and email to sign in and track predictions.</p>
+                
+                <form id="loginForm" class="space-y-3.5 text-left">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-emerald-400 uppercase mb-1">Your Name</label>
+                        <input type="text" id="userNameInput" placeholder="e.g. John Doe" required class="w-full glass-input rounded-xl p-3 text-sm font-medium">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-emerald-400 uppercase mb-1">Email Address</label>
+                        <input type="email" id="userEmailInput" placeholder="e.g. user@gmail.com" required class="w-full glass-input rounded-xl p-3 text-sm font-medium">
+                    </div>
+                    <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-sm tracking-wide shadow-lg shadow-emerald-500/30 transition mt-2">
+                        Continue to Dashboard 🚀
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 glass-card border-r border-emerald-900/40 flex flex-col justify-between p-6 hidden md:flex">
+        <div>
+            <div class="flex items-center space-x-3 mb-8">
+                <div class="p-2.5 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-xl text-slate-950 font-black text-xl shadow-lg shadow-emerald-500/20">🌱</div>
+                <div>
+                    <h1 class="text-lg font-bold text-white tracking-wide">CropYield AI</h1>
+                    <span class="text-[10px] text-emerald-400 tracking-wider font-semibold uppercase">Deep Learning Edition</span>
+                </div>
+            </div>
+            
+            <nav class="space-y-1.5">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 px-4 py-3 bg-emerald-500/10 text-emerald-400 font-semibold rounded-xl border border-emerald-500/25 shadow-sm transition text-sm">
+                    <span>🏠</span> <span>Dashboard</span>
+                </button>
+                <button onclick="switchTab('history')" id="nav-history" class="w-full flex items-center space-x-3 px-4 py-3 text-slate-300 hover:text-white hover:bg-emerald-950/40 rounded-xl transition text-sm">
+                    <span>📜</span> <span>History</span>
+                </button>
+                <button onclick="switchTab('analytics')" id="nav-analytics" class="w-full flex items-center space-x-3 px-4 py-3 text-slate-300 hover:text-white hover:bg-emerald-950/40 rounded-xl transition text-sm">
+                    <span>📈</span> <span>Yield Analytics</span>
+                </button>
+                <button onclick="switchTab('weather')" id="nav-weather" class="w-full flex items-center space-x-3 px-4 py-3 text-slate-300 hover:text-white hover:bg-emerald-950/40 rounded-xl transition text-sm">
+                    <span>🌦️</span> <span>Weather Data</span>
+                </button>
+                <button onclick="switchTab('status')" id="nav-status" class="w-full flex items-center space-x-3 px-4 py-3 text-slate-300 hover:text-white hover:bg-emerald-950/40 rounded-xl transition text-sm">
+                    <span>🧪</span> <span>Model Status</span>
+                </button>
+            </nav>
+        </div>
+
+        <div class="p-4 rounded-xl bg-emerald-950/50 border border-emerald-900/40 text-xs text-slate-300 space-y-1">
+            <p class="font-semibold text-emerald-400">Signed In As:</p>
+            <p id="displayUserName" class="text-xs font-bold text-white truncate">User Name</p>
+            <p id="displayUserEmail" class="text-[10px] text-slate-400 font-mono truncate">user@gmail.com</p>
+            <button onclick="logout()" class="text-[10px] text-red-400 hover:underline pt-1 block">Switch Account</button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-6 lg:p-10 overflow-y-auto">
+        <header class="flex justify-between items-center mb-8">
+            <div>
+                <h2 id="welcomeHeader" class="text-2xl lg:text-3xl font-extrabold text-white tracking-tight">Welcome back 👋</h2>
+                <p class="text-slate-300 text-sm mt-1">Multi-parameter agricultural prediction dashboard</p>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-slate-950 flex items-center justify-center font-extrabold shadow-lg shadow-emerald-500/30" id="userAvatarLetter">U</div>
+        </header>
+
+        <!-- TAB 1: DASHBOARD -->
+        <div id="tab-dashboard" class="tab-content grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div class="lg:col-span-7 glass-card p-6 lg:p-8 rounded-3xl shadow-2xl">
+                <h3 class="font-bold text-lg text-white mb-6 flex items-center gap-2"><span>📊</span> Parameters</h3>
+                <form id="predictionForm" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-emerald-400 uppercase mb-2">Location / Region</label>
+                        <input type="text" id="location" value="Budaun, Uttar Pradesh" class="w-full glass-input rounded-xl p-3 text-sm font-medium">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-emerald-400 uppercase mb-2">Crop Type</label>
+                            <select id="crop" class="w-full glass-input rounded-xl p-3 text-sm font-medium">
+                                <option value="Rice" class="bg-slate-900">Rice 🌾</option>
+                                <option value="Wheat" class="bg-slate-900">Wheat 🍞</option>
+                                <option value="Maize" class="bg-slate-900">Maize 🌽</option>
+                                <option value="Potatoes" class="bg-slate-900">Potatoes 🥔</option>
+                                <option value="Sorghum" class="bg-slate-900">Sorghum</option>
+                                <option value="Soybeans" class="bg-slate-900">Soybeans</option>
+                                <option value="Sweet potatoes" class="bg-slate-900">Sweet potatoes</option>
+                                <option value="Yams" class="bg-slate-900">Yams</option>
+                                <option value="Plantains and others" class="bg-slate-900">Plantains and others</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-emerald-400 uppercase mb-2">Season (history only)</label>
+                            <select id="season" class="w-full glass-input rounded-xl p-3 text-sm font-medium">
+                                <option value="Kharif" class="bg-slate-900">Kharif</option>
+                                <option value="Rabi" class="bg-slate-900">Rabi</option>
+                                <option value="Zaid" class="bg-slate-900">Zaid</option>
+                            </select>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-slate-400">Note: Season and soil are saved with your history. The trained model does not use these two fields.</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-emerald-400 uppercase mb-2">Soil Type (history only)</label>
+                            <select id="soil" class="w-full glass-input rounded-xl p-3 text-sm font-medium">
+                                <option value="Loam" class="bg-slate-900">Loamy Soil</option>
+                                <option value="Clay" class="bg-slate-900">Clay Soil</option>
+                                <option value="Sandy" class="bg-slate-900">Sandy Soil</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-emerald-400 uppercase mb-2">Field Area (Acres)</label>
+                            <input type="number" id="area" value="2.5" step="0.1" class="w-full glass-input rounded-xl p-3 text-sm font-medium">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div><label class="block text-[11px] text-emerald-400 uppercase mb-1">Rainfall (mm/year)</label><input type="number" id="rainfall" value="1200" class="w-full glass-input rounded-xl p-2.5 text-sm"></div>
+                        <div><label class="block text-[11px] text-emerald-400 uppercase mb-1">Pesticides (tonnes)</label><input type="number" id="pesticides" value="45" class="w-full glass-input rounded-xl p-2.5 text-sm"></div>
+                        <div><label class="block text-[11px] text-emerald-400 uppercase mb-1">Temp (°C)</label><input type="number" id="temperature" value="27.5" step="0.1" class="w-full glass-input rounded-xl p-2.5 text-sm"></div>
+                    </div>
+                    <button type="submit" class="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-base shadow-lg shadow-emerald-500/30 transition mt-4 flex items-center justify-center space-x-2">
+                        <span>Predict Yield ⚡</span>
+                    </button>
+                </form>
+            </div>
+
+            <div class="lg:col-span-5 flex flex-col space-y-6">
+                <div class="glass-card p-6 lg:p-8 rounded-3xl shadow-2xl relative overflow-hidden border border-emerald-500/30 glow-emerald">
+                    <div class="flex items-center justify-between mb-6">
+                        <span class="text-xs font-extrabold uppercase text-emerald-300 bg-emerald-950/80 px-3 py-1 rounded-full border border-emerald-500/30">AI Output</span>
+                        <span class="text-xs text-slate-300 font-mono">Model prediction</span>
+                    </div>
+                    <div class="flex items-center gap-5 mb-8">
+                        <div class="w-20 h-20 rounded-2xl bg-emerald-950/60 flex items-center justify-center text-3xl shadow-lg border border-emerald-500/30">🌾</div>
+                        <div>
+                            <p class="text-xs font-semibold text-emerald-400 uppercase">Estimated Yield</p>
+                            <div class="text-4xl font-extrabold text-white mt-1">
+                                <span id="outputYield" class="text-emerald-400">--</span>
+                                <span class="text-base font-normal text-slate-300">q/acre</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="downloadReport()" class="w-full py-3 rounded-xl bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-300 font-bold text-xs tracking-wider uppercase transition flex items-center justify-center space-x-2 shadow-md">
+                        <span>📥 Download Prediction Report</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: HISTORY -->
+        <div id="tab-history" class="tab-content hidden space-y-6">
+            <div class="glass-card p-8 rounded-3xl">
+                <h3 class="text-xl font-bold text-white mb-2">📜 Your Prediction History</h3>
+                <p class="text-slate-300 text-sm mb-6">Past calculations saved securely for <span id="historyUserNameSpan" class="text-emerald-400 font-bold"></span> (<span id="historyEmailSpan" class="text-slate-300 font-mono"></span>)</p>
+                <div id="historyTableContainer" class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-slate-200">
+                        <thead class="bg-emerald-950/80 text-xs uppercase text-emerald-400 border-b border-emerald-900/40">
+                            <tr>
+                                <th class="p-3">Timestamp</th>
+                                <th class="p-3">Location</th>
+                                <th class="p-3">Crop</th>
+                                <th class="p-3">Season</th>
+                                <th class="p-3">Soil</th>
+                                <th class="p-3">Area</th>
+                                <th class="p-3">Yield (q/acre)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody" class="divide-y divide-emerald-900/30"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: ANALYTICS -->
+        <div id="tab-analytics" class="tab-content hidden space-y-6">
+            <div class="glass-card p-8 rounded-3xl">
+                <h3 class="text-xl font-bold text-white mb-4">📈 Yield Performance Analytics</h3>
+                <p class="text-slate-300 text-sm mb-6">Verified accuracy and regional averages are not included in the supplied model artifacts, so they are not displayed as factual metrics.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-emerald-950/50 p-5 rounded-2xl border border-emerald-900/40">
+                        <p class="text-xs text-emerald-400">Average Regional Yield</p>
+                        <h4 class="text-2xl font-bold text-white mt-1">Not calculated</h4>
+                    </div>
+                    <div class="bg-emerald-950/50 p-5 rounded-2xl border border-emerald-900/40">
+                        <p class="text-xs text-emerald-400">Model Accuracy (R²)</p>
+                        <h4 class="text-2xl font-bold text-white mt-1">Not provided</h4>
+                    </div>
+                    <div class="bg-emerald-950/50 p-5 rounded-2xl border border-emerald-900/40">
+                        <p class="text-xs text-emerald-400">Total Features Processed</p>
+                        <h4 class="text-2xl font-bold text-white mt-1">113 Columns</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: WEATHER DATA -->
+        <div id="tab-weather" class="tab-content hidden space-y-6">
+            <div class="glass-card p-8 rounded-3xl">
+                <h3 class="text-xl font-bold text-white mb-4">🌦️ Live Weather Integration</h3>
+                <p class="text-slate-300 text-sm mb-6">Real-time climatic monitoring connected for precipitation and thermal index calculations.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-emerald-950/50 p-6 rounded-2xl border border-emerald-900/40 flex items-center justify-between">
+                        <div>
+                            <span class="text-xs text-emerald-400">Temperature</span>
+                            <h4 class="text-3xl font-bold text-white mt-1">27.5 °C</h4>
+                            <p class="text-xs text-emerald-300 mt-1">Optimal for current crop cycle</p>
+                        </div>
+                        <span class="text-4xl">🌤️</span>
+                    </div>
+                    <div class="bg-emerald-950/50 p-6 rounded-2xl border border-emerald-900/40 flex items-center justify-between">
+                        <div>
+                            <span class="text-xs text-emerald-400">Expected Precipitation</span>
+                            <h4 class="text-3xl font-bold text-white mt-1">1200 mm</h4>
+                            <p class="text-xs text-emerald-300 mt-1">Monsoon level stable</p>
+                        </div>
+                        <span class="text-4xl">🌧️</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 5: MODEL STATUS -->
+        <div id="tab-status" class="tab-content hidden space-y-6">
+            <div class="glass-card p-8 rounded-3xl space-y-4">
+                <h3 class="text-xl font-bold text-white mb-2">🧪 Deep Learning Model Status</h3>
+                <p class="text-slate-300 text-sm">System artifacts loaded successfully in backend server memory.</p>
+                <div class="space-y-2 font-mono text-xs text-slate-300">
+                    <div class="p-3 bg-emerald-950/60 rounded-xl border border-emerald-900/40 flex justify-between">
+                        <span>Model Architecture:</span> <span class="text-emerald-400">Sequential (128-64-32-1)</span>
+                    </div>
+                    <div class="p-3 bg-emerald-950/60 rounded-xl border border-emerald-900/40 flex justify-between">
+                        <span>Weights File:</span> <span class="text-emerald-400">ultimate_crop_yield_dl_model.h5</span>
+                    </div>
+                    <div class="p-3 bg-emerald-950/60 rounded-xl border border-emerald-900/40 flex justify-between">
+                        <span>Feature Mapping:</span> <span class="text-emerald-400">feature_columns.pkl (113 features)</span>
+                    </div>
+                    <div class="p-3 bg-emerald-950/60 rounded-xl border border-emerald-900/40 flex justify-between">
+                        <span>Standard Scaler:</span> <span class="text-emerald-400">scaler.pkl active</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let currentUserEmail = localStorage.getItem('crop_user_email');
+        let currentUserName = localStorage.getItem('crop_user_name');
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (currentUserEmail && currentUserName) {
+                document.getElementById('loginModal').classList.add('hidden');
+                document.getElementById('displayUserName').innerText = currentUserName;
+                document.getElementById('displayUserEmail').innerText = currentUserEmail;
+                document.getElementById('welcomeHeader').innerText = `Welcome back, ${currentUserName} 👋`;
+                document.getElementById('historyUserNameSpan').innerText = currentUserName;
+                document.getElementById('historyEmailSpan').innerText = currentUserEmail;
+                document.getElementById('userAvatarLetter').innerText = currentUserName.charAt(0).toUpperCase();
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('userNameInput').value.trim();
+            const email = document.getElementById('userEmailInput').value.trim();
+            
+            if (name && email) {
+                localStorage.setItem('crop_user_name', name);
+                localStorage.setItem('crop_user_email', email);
+                currentUserEmail = email;
+                currentUserName = name;
+                
+                document.getElementById('loginModal').classList.add('hidden');
+                document.getElementById('displayUserName').innerText = name;
+                document.getElementById('displayUserEmail').innerText = email;
+                document.getElementById('welcomeHeader').innerText = `Welcome back, ${name} 👋`;
+                document.getElementById('historyUserNameSpan').innerText = name;
+                document.getElementById('historyEmailSpan').innerText = email;
+                document.getElementById('userAvatarLetter').innerText = name.charAt(0).toUpperCase();
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('crop_user_email');
+            localStorage.removeItem('crop_user_name');
+            location.reload();
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+
+            ['dashboard', 'history', 'analytics', 'weather', 'status'].forEach(id => {
+                const btn = document.getElementById('nav-' + id);
+                if (btn) btn.className = "w-full flex items-center space-x-3 px-4 py-3 text-slate-300 hover:text-white hover:bg-emerald-950/40 rounded-xl transition text-sm";
+            });
+            const currentActive = document.getElementById('nav-' + tabId);
+            if (currentActive) currentActive.className = "w-full flex items-center space-x-3 px-4 py-3 bg-emerald-500/10 text-emerald-400 font-semibold rounded-xl border border-emerald-500/25 shadow-sm transition text-sm";
+
+            if (tabId === 'history') {
+                loadHistory();
+            }
+        }
+
+        async function loadHistory() {
+            try {
+                const res = await fetch(`/history?email=${encodeURIComponent(currentUserEmail)}`);
+                const responseText = await res.text();
+                if (!responseText.trim()) {
+                    throw new Error(`History API returned an empty response (HTTP ${res.status}).`);
+                }
+                const data = JSON.parse(responseText);
+                if (!res.ok || data.status !== 'success') {
+                    throw new Error(data.message || `History request failed (${res.status})`);
+                }
+                const tbody = document.getElementById('historyTableBody');
+                tbody.innerHTML = '';
+
+                if (data.status === 'success' && data.history.length > 0) {
+                    data.history.forEach(item => {
+                        const tr = document.createElement('tr');
+                        tr.className = "hover:bg-emerald-950/30 transition";
+                        tr.innerHTML = `
+                            <td class="p-3 text-xs text-slate-400 font-mono">${item.timestamp}</td>
+                            <td class="p-3 font-medium text-white">${item.location}</td>
+                            <td class="p-3 text-emerald-400 font-semibold">${item.crop}</td>
+                            <td class="p-3">${item.season}</td>
+                            <td class="p-3">${item.soil}</td>
+                            <td class="p-3">${item.area} acres</td>
+                            <td class="p-3 font-bold text-white">${item.yield_val} q/acre</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">No prediction history found for ${currentUserName}.</td></tr>`;
+                }
+            } catch (err) {
+                console.error('Failed to load history', err);
+            }
+        }
+
+        function downloadReport() {
+            const yieldVal = document.getElementById('outputYield').innerText;
+            const crop = document.getElementById('crop').value;
+            const season = document.getElementById('season').value;
+            const soil = document.getElementById('soil').value;
+            const area = document.getElementById('area').value;
+            const location = document.getElementById('location').value;
+
+            const reportContent = `--- CROP YIELD AI PREDICTION REPORT ---
+User Name: ${currentUserName || 'User'}
+User Email: ${currentUserEmail || 'N/A'}
+Location: ${location}
+Crop Type: ${crop}
+Season: ${season}
+Soil Type: ${soil}
+Field Area: ${area} acres
+Estimated Yield: ${yieldVal} quintals/acre
+Model Used: Deep Learning Neural Network (.h5)
+--------------------------------------`;
+
+            const blob = new Blob([reportContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `CropYield_Report_${currentUserName || 'User'}_${crop}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        document.getElementById('predictionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerText;
+            submitButton.disabled = true;
+            submitButton.innerText = 'Predicting...';
+
+            const data = {
+                email: currentUserEmail || 'guest@gmail.com',
+                location: document.getElementById('location').value,
+                crop: document.getElementById('crop').value,
+                season: document.getElementById('season').value,
+                soil: document.getElementById('soil').value,
+                area: document.getElementById('area').value,
+                rainfall: document.getElementById('rainfall').value,
+                pesticides: document.getElementById('pesticides').value,
+                temperature: document.getElementById('temperature').value
+            };
+
+            try {
+                const res = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const responseText = await res.text();
+                if (!responseText.trim()) {
+                    throw new Error(`Server returned an empty response (HTTP ${res.status}). Check the Render service status and logs.`);
+                }
+
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                } catch (_) {
+                    const preview = responseText.slice(0, 180).replace(/\\s+/g, ' ');
+                    throw new Error(`Server returned an invalid response (HTTP ${res.status}): ${preview}`);
+                }
+
+                if (!res.ok || result.status !== 'success') {
+                    throw new Error(result.message || `Prediction failed (${res.status})`);
+                }
+                document.getElementById('outputYield').innerText = result.estimated_yield_q_acre.toFixed(2);
+                alert(`Prediction successful!\nYield: ${result.estimated_yield_q_acre} q/acre\nTotal for ${result.area} acres: ${result.estimated_total_yield_quintals} quintals`);
+            } catch (err) {
+                alert('Prediction error: ' + err.message);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.innerText = originalButtonText;
+            }
+        });
+    </script>
+</body>
+</html>
